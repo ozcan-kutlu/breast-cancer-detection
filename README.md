@@ -84,7 +84,7 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 
 ## Dağıtım (Vercel + API)
 
-Önce **API’yi internete** açın; Vercel’de frontend, istekleri **sunucu tarafı proxy** ile Render’a iletir (CORS / `NEXT_PUBLIC_` gömme sorunlarını önler).
+Önce **API’yi internete** açın; Vercel’de frontend, tarayıcıdan doğrudan bu API adresine (`NEXT_PUBLIC_API_URL`) istek atar. FastAPI CORS tüm kökenlere açıktır.
 
 ### A) API’yi yayınla (Render — önerilen)
 
@@ -101,14 +101,13 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 ### B) Vercel (Next.js)
 
 1. [Vercel](https://vercel.com/) → proje → **Settings → Environment Variables**.
-2. **Production** (ve gerekirse Preview) için şunu ekleyin:  
-   - **`BACKEND_URL`** = Render API adresiniz, ör. `https://breast-cancer-api-xxxx.onrender.com`  
+2. **Production** ve **Preview** için: **`NEXT_PUBLIC_API_URL`** = Render API kökünüz, ör. `https://breast-cancer-api-xxxx.onrender.com`  
    - Sonunda **`/`** olmasın.  
-   - **Runtime** için tanımlı olması yeterli (Route Handler her istekte okur). İsterseniz Build için de açık bırakın.
-3. Eski denemelerden kalan **`NEXT_PUBLIC_API_URL`** varsa **silin** — tarayıcı varsayılan olarak `/api/render/...` kullanır; bu değişken doğrudan dış API’ye gider ve karışıklık yaratır.
-4. Git’e **yeni commit push** edin (Vercel otomatik deploy) veya boş commit: `git commit --allow-empty -m "redeploy" && git push`.
+   - **`NEXT_PUBLIC_*`** build sırasında bundle’a gömülür → değişkenin **Build** ortamında da kullanılabilir olduğundan emin olun (Vercel’de ilgili kutular işaretli olsun).
+3. Eski **`BACKEND_URL`** tanımı kaldıysa silebilirsiniz (artık kullanılmıyor).
+4. Yeni deploy: push veya **Redeploy**.
 
-**Nasıl çalışıyor?** Tarayıcı her zaman (Vercel ve yerel) önce **`/api/render/...`** çağırır; Next.js Route Handler sunucuda **`BACKEND_URL`** ile Render’daki **`/api/...`** adresine proxy yapar. `NEXT_PUBLIC_API_URL` yalnızca doğrudan dış köke gitmek istediğiniz istisna senaryolarda kullanılır.
+**Nasıl çalışıyor?** Tarayıcı doğrudan Render’daki `NEXT_PUBLIC_API_URL` + `/api/...` adresine istek atar. FastAPI tarafında CORS `allow_origins=["*"]` ile açıktır.
 
 ### C) Kontrol
 
@@ -117,9 +116,9 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 
 **Teknik notlar**
 
-- **Yerel:** `frontend/.env.local` içinde **`BACKEND_URL=http://127.0.0.1:8000`** (uvicorn açıkken). Uzak API denemek için aynı değişkene Render URL’si verin.
-- **Docker Compose (`web`):** `BACKEND_URL=http://api:8000` ile konteyner içinden API servisine proxy.
-- **`Dockerfile` (API):** Render/Railway `PORT`; uvicorn `${PORT:-8000}`.
+- **Yerel:** `frontend/.env.local` → **`NEXT_PUBLIC_API_URL=http://127.0.0.1:8000`** (veya boş bırakın; varsayılan aynı adres).
+- **Docker Compose:** Tarayıcı makinede `localhost:8000` API’ye gider → build’de `NEXT_PUBLIC_API_URL=http://localhost:8000`.
+- **API Dockerfile:** Render/Railway `PORT`; uvicorn `${PORT:-8000}`.
 - **`next.config.ts`:** `VERCEL=1` iken `standalone` kapalı.
 
 ---
@@ -156,7 +155,7 @@ npm install
 Önce `frontend/.env.local` oluşturun (örnek: `cp .env.local.example .env.local`):
 
 ```env
-BACKEND_URL=http://127.0.0.1:8000
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 ```
 
 Ardından (API `uvicorn` çalışırken):
@@ -233,9 +232,8 @@ breast-cancer-detection/
 Yerelde bir kez `python train.py` çalıştırın. Docker kullanıyorsanız API imajı build sırasında bunu zaten yapar.
 
 **Frontend API’ye bağlanamıyor**  
-**Yerel:** `frontend/.env.local` → **`BACKEND_URL=http://127.0.0.1:8000`** ve API’nin 8000’de çalıştığından emin olun. İstekler `/api/render/...` üzerinden gider.  
-**Docker Compose:** `web` servisinde **`BACKEND_URL=http://api:8000`**.  
-**Vercel:** **`BACKEND_URL`** = Render API kökü (runtime). **`NEXT_PUBLIC_API_URL`** tanımlıysa kaldırın (doğrudan 127.0.0.1’e zorlar).
+**Yerel:** `NEXT_PUBLIC_API_URL=http://127.0.0.1:8000` ve uvicorn açık mı?  
+**Vercel:** **`NEXT_PUBLIC_API_URL`** = tam Render kökü; **build** sırasında da tanımlı olmalı. Tarayıcı Network’te istekler **`https://…onrender.com/api/...`** olmalı.
 
 **Tema veya dil sıfırlandı**  
 Tercihler `localStorage` içindedir; site verisini temizlediyseniz veya gizli pencerede açtıysanız varsayılanlara döner (tema: sistem tercihi veya koyu; dil: Türkçe).
@@ -244,7 +242,7 @@ Tercihler `localStorage` içindedir; site verisini temizlediyseniz veya gizli pe
 Önce `npm run lint` ile hataları düzeltin. Next’in kendi build-içi lint adımı bu projede kapatılmıştır; kalite kontrolü `npm run build` öncesindeki `eslint .` ile yapılır.
 
 **Vercel’de site açılıyor ama veri / tahmin yüklenmiyor**  
-**`BACKEND_URL`** (Render URL’si, sonunda `/` yok) Production’da tanımlı mı? Eski **`NEXT_PUBLIC_API_URL`** kaldırın. Deploy sonrası Network’te istekler **`/api/render/meta`** gibi olmalı.
+**`NEXT_PUBLIC_API_URL`** Render kökü mü (sonda `/` yok)? **Preview** ortamında da aynı değişken tanımlı mı? Redeploy edin.
 
 ---
 

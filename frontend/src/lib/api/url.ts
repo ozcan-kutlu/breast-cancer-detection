@@ -1,33 +1,28 @@
 /**
- * API istek adresi.
- * - Varsayılan: aynı kök üzerinden `/api/render/...` → sunucu Route Handler → `BACKEND_URL` (yerel/Vercel).
- * - İstisna: `NEXT_PUBLIC_API_URL` doluysa tarayıcı doğrudan o köke gider (nadir / Docker dışı senaryolar).
+ * API kökü: build/runtime’da NEXT_PUBLIC_API_URL (Vercel + Render için zorunlu).
+ * Yerelde boşsa http://127.0.0.1:8000.
  */
 
 function stripTrailingSlash(s: string): string {
   return s.replace(/\/$/, "");
 }
 
-function toRenderProxyPath(apiPath: string): string {
-  const sub = apiPath.replace(/^\/api\/?/, "");
-  return `/api/render/${sub}`;
+const defaultLocal = "http://127.0.0.1:8000";
+
+function apiBase(): string {
+  return stripTrailingSlash(
+    process.env.NEXT_PUBLIC_API_URL?.trim() || defaultLocal,
+  );
 }
 
 /**
- * @param apiPath FastAPI yolu, "/api/..." ile başlamalı (örn. "/api/meta").
+ * @param apiPath "/api/..." (örn. "/api/meta")
  */
 export function resolveApiUrl(apiPath: string): string {
-  const direct = process.env.NEXT_PUBLIC_API_URL?.trim();
-  if (direct) {
-    const base = stripTrailingSlash(direct);
-    return `${base}${apiPath.startsWith("/") ? apiPath : `/${apiPath}`}`;
-  }
-  return toRenderProxyPath(apiPath);
+  const base = apiBase();
+  return `${base}${apiPath.startsWith("/") ? apiPath : `/${apiPath}`}`;
 }
 
-/** Eski çağrılar için; yeni kod resolveApiUrl kullanmalı. */
 export function getApiBase(): string {
-  const direct = process.env.NEXT_PUBLIC_API_URL?.trim();
-  if (direct) return stripTrailingSlash(direct);
-  return "";
+  return apiBase();
 }

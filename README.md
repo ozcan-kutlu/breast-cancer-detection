@@ -104,11 +104,11 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 2. **Production** (ve gerekirse Preview) için şunu ekleyin:  
    - **`BACKEND_URL`** = Render API adresiniz, ör. `https://breast-cancer-api-xxxx.onrender.com`  
    - Sonunda **`/`** olmasın.  
-   - **Build** sırasında da kullanılması lazım (Vercel’de değişken eklerken *Production* + *Preview* için “Available at Build Time” seçenekleri açık olsun).
-3. Eski denemelerden kalan **`NEXT_PUBLIC_API_URL`** varsa **silin** veya boş bırakın — proxy aktifken gerekmez; karışıklığı önler.
+   - **Runtime** için tanımlı olması yeterli (Route Handler her istekte okur). İsterseniz Build için de açık bırakın.
+3. Eski denemelerden kalan **`NEXT_PUBLIC_API_URL`** varsa **silin** — tarayıcı varsayılan olarak `/api/render/...` kullanır; bu değişken doğrudan dış API’ye gider ve karışıklık yaratır.
 4. Git’e **yeni commit push** edin (Vercel otomatik deploy) veya boş commit: `git commit --allow-empty -m "redeploy" && git push`.
 
-**Nasıl çalışıyor?** `BACKEND_URL` Vercel’de tanımlıysa tarayıcı `/api/render/...` adresine istek atar; Next.js Route Handler bunu sunucuda Render’daki `/api/...` adresine iletir; tarayıcı sadece kendi Vercel alan adını görür.
+**Nasıl çalışıyor?** Tarayıcı her zaman (Vercel ve yerel) önce **`/api/render/...`** çağırır; Next.js Route Handler sunucuda **`BACKEND_URL`** ile Render’daki **`/api/...`** adresine proxy yapar. `NEXT_PUBLIC_API_URL` yalnızca doğrudan dış köke gitmek istediğiniz istisna senaryolarda kullanılır.
 
 ### C) Kontrol
 
@@ -117,9 +117,10 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 
 **Teknik notlar**
 
-- **Yerel / Docker:** `BACKEND_URL` yok → istekler doğrudan `NEXT_PUBLIC_API_URL` veya `http://127.0.0.1:8000`.
-- **`Dockerfile`:** Render/Railway `PORT`; uvicorn `${PORT:-8000}`.
-- **`next.config.ts`:** `VERCEL=1` iken `standalone` kapalı; `BACKEND_URL` varken `NEXT_PUBLIC_API_PROXY=1` client’a build sırasında yazılır.
+- **Yerel:** `frontend/.env.local` içinde **`BACKEND_URL=http://127.0.0.1:8000`** (uvicorn açıkken). Uzak API denemek için aynı değişkene Render URL’si verin.
+- **Docker Compose (`web`):** `BACKEND_URL=http://api:8000` ile konteyner içinden API servisine proxy.
+- **`Dockerfile` (API):** Render/Railway `PORT`; uvicorn `${PORT:-8000}`.
+- **`next.config.ts`:** `VERCEL=1` iken `standalone` kapalı.
 
 ---
 
@@ -152,16 +153,16 @@ cd frontend
 npm install
 ```
 
-Geliştirme sunucusu (API adresini tarayıcıdan erişilebilir verin):
+Önce `frontend/.env.local` oluşturun (örnek: `cp .env.local.example .env.local`):
 
-```bash
-# Windows PowerShell
-$env:NEXT_PUBLIC_API_URL="http://localhost:8000"; npm run dev
+```env
+BACKEND_URL=http://127.0.0.1:8000
 ```
 
+Ardından (API `uvicorn` çalışırken):
+
 ```bash
-# macOS / Linux
-NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev
+npm run dev
 ```
 
 | Komut | Açıklama |
@@ -232,8 +233,9 @@ breast-cancer-detection/
 Yerelde bir kez `python train.py` çalıştırın. Docker kullanıyorsanız API imajı build sırasında bunu zaten yapar.
 
 **Frontend API’ye bağlanamıyor**  
-**Yerel / Docker:** `NEXT_PUBLIC_API_URL` veya varsayılan `http://127.0.0.1:8000`. Compose’ta `docker-compose.yml` build argümanına bakın.  
-**Vercel:** `BACKEND_URL` = Render (veya Railway) API kök adresi (Production’da Runtime için yeterli). İstekler `/api/render/...` Route Handler ile proxy’lenir.
+**Yerel:** `frontend/.env.local` → **`BACKEND_URL=http://127.0.0.1:8000`** ve API’nin 8000’de çalıştığından emin olun. İstekler `/api/render/...` üzerinden gider.  
+**Docker Compose:** `web` servisinde **`BACKEND_URL=http://api:8000`**.  
+**Vercel:** **`BACKEND_URL`** = Render API kökü (runtime). **`NEXT_PUBLIC_API_URL`** tanımlıysa kaldırın (doğrudan 127.0.0.1’e zorlar).
 
 **Tema veya dil sıfırlandı**  
 Tercihler `localStorage` içindedir; site verisini temizlediyseniz veya gizli pencerede açtıysanız varsayılanlara döner (tema: sistem tercihi veya koyu; dil: Türkçe).
@@ -242,7 +244,7 @@ Tercihler `localStorage` içindedir; site verisini temizlediyseniz veya gizli pe
 Önce `npm run lint` ile hataları düzeltin. Next’in kendi build-içi lint adımı bu projede kapatılmıştır; kalite kontrolü `npm run build` öncesindeki `eslint .` ile yapılır.
 
 **Vercel’de site açılıyor ama veri / tahmin yüklenmiyor**  
-**`BACKEND_URL`** (Render URL’si, sonunda `/` yok) tanımlı mı ve **build + production** için açık mı? Eski **`NEXT_PUBLIC_API_URL`** kaldırın. Değişiklikten sonra **yeni commit ile deploy** edin.
+**`BACKEND_URL`** (Render URL’si, sonunda `/` yok) Production’da tanımlı mı? Eski **`NEXT_PUBLIC_API_URL`** kaldırın. Deploy sonrası Network’te istekler **`/api/render/meta`** gibi olmalı.
 
 ---
 

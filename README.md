@@ -76,6 +76,8 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 | [http://localhost:8000/docs](http://localhost:8000/docs) | API interaktif dokümantasyonu (Swagger) |
 | [http://localhost:8000/api/health](http://localhost:8000/api/health) | Sağlık kontrolü |
 
+`web` servisi, API imajındaki **healthcheck** yeşile dönene kadar bekler (`depends_on: service_healthy`).
+
 > **Web imajı:** `npm run build` önce **ESLint** çalıştırır, ardından production build üretir. API imajında build sırasında `train.py` ile model artifact’ları oluşturulur. İlk build birkaç dakika sürebilir.
 
 ---

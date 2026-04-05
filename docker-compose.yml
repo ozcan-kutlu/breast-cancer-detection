@@ -1,3 +1,4 @@
+# Yerel kullanım: tarayıcı http://localhost:3000 → JS istekleri host üzerinden http://localhost:8000/api/... (API konteyneri).
 services:
   api:
     build:
@@ -18,5 +19,6 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     restart: unless-stopped

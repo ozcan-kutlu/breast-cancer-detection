@@ -1,0 +1,5 @@
+# Railway: New Project → Deploy from GitHub → Dockerfile kullanılır.
+# Deploy sonrası Settings → Networking → Public URL ile API adresini alın.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"

@@ -1,0 +1,11 @@
+# Render: New → Blueprint → Bu repoyu bağla → API tek başına ayağa kalkar.
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: breast-cancer-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health

@@ -10,7 +10,7 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5-F7931E?logo=scikitlearn&logoColor=white)](https://scikit-learn.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
-[Özellikler](#overview) · [Arayüz](#ui) · [Docker](#docker) · [Vercel](#vercel) · [Yerel geliştirme](#local-dev) · [API](#api) · [SSS](#faq)
+[Özellikler](#overview) · [Arayüz](#ui) · [Docker](#docker) · [Dağıtım (Vercel + API)](#deploy) · [Yerel geliştirme](#local-dev) · [API](#api) · [SSS](#faq)
 
 </div>
 
@@ -80,17 +80,42 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 
 ---
 
-<a id="vercel"></a>
+<a id="deploy"></a>
 
-## Vercel (yalnızca frontend)
+## Dağıtım (Vercel + API)
 
-Bu repoda **API ayrı bir sunucudur**; Vercel’e yalnızca Next.js uygulaması bağlanırsa tarayıcı hâlâ bir **FastAPI** adresine ihtiyaç duyar.
+Tarayıcı doğrudan **FastAPI**’ye istek atar; Vercel’de yalnızca Next.js vardır. Önce **API’yi internete**, sonra **Vercel ortam değişkeni** ile bağlayın.
 
-1. **Kök dizin:** Vercel proje ayarında **Root Directory** → `frontend`.
-2. **Ortam değişkeni (zorunlu):** `NEXT_PUBLIC_API_URL` = canlı API’nizin tam adresi, ör. `https://api-xxx.railway.app`  
-   - Tanımlanmazsa kod varsayılan olarak `http://127.0.0.1:8000` kullanır; ziyaretçinin bilgisayarında çalışmayan bir adrese istek gider → **meta / tahmin hataları**.
-3. **API’yi internete açın:** FastAPI’yi [Railway](https://railway.app/), [Render](https://render.com/), [Fly.io](https://fly.io/) vb. üzerinde yayınlayın; `train.py` veya artifact’ların orada da üretilmiş olması gerekir. CORS bu projede açıktır (`allow_origins=["*"]`).
-4. **Build:** `next.config.ts` içinde `VERCEL` ortamında `output: "standalone"` kullanılmaz (Vercel’in varsayılan Next dağıtımı ile uyum).
+### A) API’yi yayınla (Render — önerilen)
+
+1. [Render](https://render.com/) → **New** → **Blueprint** → bu GitHub reposunu seç.
+2. `render.yaml` kökteki **Dockerfile** ile tek bir **Web Service** oluşturur (Frankfurt, free plan).
+3. İlk build 3–5 dk sürebilir (`pip` + `train.py` imaj içinde çalışır).
+4. Deploy bitince public URL ör. `https://breast-cancer-api-xxxx.onrender.com` — kopyala.
+5. **Health check:** `GET /api/health` (Blueprint’te tanımlı).
+
+> Free Web Service uyku moduna geçebilir; ilk istekte birkaç saniye gecikme normaldir.
+
+**Railway alternatifi:** Repoyu bağla; kökteki `railway.toml` Dockerfile build kullanır. **Settings → Networking → Generate Domain** ile public URL al.
+
+### B) Vercel (Next.js)
+
+1. [Vercel](https://vercel.com/) → **Add New… → Project** → aynı repoyu içe aktar.
+2. **Root Directory:** `frontend` (kökteki `vercel.json` bunu ayarlar; panelde farklıysa `frontend` yapın).
+3. **Environment Variables → Production:**  
+   - `NEXT_PUBLIC_API_URL` = **A adımındaki API URL’si** (sonunda `/` olmasın), ör. `https://breast-cancer-api-xxxx.onrender.com`
+4. **Deploy.** Değişkeni sonradan eklerseniz **Redeploy** gerekir (değer build’e gömülür).
+
+### C) Kontrol
+
+- Tarayıcıda: `https://SENİN-API-ADRESİN/api/health` → `{"status":"ok",...}` görmelisiniz.
+- Sonra Vercel URL’nizde form yüklenmeli ve tahmin çalışmalı.
+
+**Teknik notlar**
+
+- `frontend/src/lib/api/url.ts`: `NEXT_PUBLIC_API_URL` yoksa varsayılan `http://127.0.0.1:8000` — üretimde mutlaka env verin.
+- `Dockerfile`: Render/Railway `PORT` verir; uvicorn `PORT` (yoksa 8000) ile dinler.
+- `next.config.ts`: `VERCEL=1` iken `standalone` kapatılır (Vercel uyumu).
 
 ---
 
@@ -174,7 +199,10 @@ breast-cancer-detection/
 ├── static/                   # İsteğe bağlı basit HTML/JS demo
 ├── train.py                  # Model eğitimi → artifacts/
 ├── artifacts/                # model.joblib, feature_names.joblib (Git’e alınmaz)
-├── Dockerfile                # API imajı
+├── Dockerfile                # API imajı (bulut + Docker Compose)
+├── render.yaml               # Render Blueprint (API tek tık)
+├── railway.toml              # Railway Dockerfile build
+├── vercel.json               # Vercel: rootDirectory = frontend
 ├── docker-compose.yml        # api :8000 + web :3000
 └── requirements.txt
 ```

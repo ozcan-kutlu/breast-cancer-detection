@@ -100,8 +100,6 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 
 > **Yapı değişikliği:** API dosyaları `backend/` altındadır. Eski bir Render servisiniz varsa Blueprint’i güncel `render.yaml` ile senkronlayın veya yeni commit’ten sonra **Manual Deploy** ile yeniden derleyin.
 
-**Railway alternatifi:** Repoyu bağla; `railway.toml` **`backend/Dockerfile`** ile build alır. **Settings → Networking → Generate Domain** ile public URL al.
-
 ### B) Vercel (Next.js)
 
 1. [Vercel](https://vercel.com/) → proje → **Settings → Environment Variables**.
@@ -121,7 +119,7 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 
 - **Yerel:** `frontend/.env.local` → **`NEXT_PUBLIC_API_URL=http://127.0.0.1:8000`** (veya boş bırakın; varsayılan aynı adres).
 - **Docker Compose:** Tarayıcı makinede `localhost:8000` API’ye gider → build’de `NEXT_PUBLIC_API_URL=http://localhost:8000`.
-- **API Dockerfile:** Render/Railway `PORT`; uvicorn `${PORT:-8000}`.
+- **API Dockerfile:** PaaS ortamı `PORT` verir; uvicorn `${PORT:-8000}`.
 - **`next.config.ts`:** `VERCEL=1` iken `standalone` kapalı.
 
 ---
@@ -204,7 +202,7 @@ breast-cancer-detection/
 │   ├── app/                  # FastAPI (routers, servisler, şemalar)
 │   ├── train.py              # Model eğitimi → artifacts/
 │   ├── requirements.txt
-│   ├── Dockerfile            # API imajı (Render / Railway / Compose)
+│   ├── Dockerfile            # API imajı (Render + Docker Compose)
 │   └── artifacts/            # model.joblib, … (Git’e alınmaz; yerelde veya imajda üretilir)
 ├── frontend/                 # Next.js
 │   └── src/
@@ -212,9 +210,7 @@ breast-cancer-detection/
 │       ├── components/       # Navbar, tahmin bileşenleri, tema / dil
 │       ├── contexts/         # Dil ve tema (React Context)
 │       └── lib/              # API istemcisi, i18n, tema yardımcıları
-├── static/                   # İsteğe bağlı basit HTML/JS demo
 ├── render.yaml               # Render Blueprint → backend/Dockerfile
-├── railway.toml              # Railway → backend/Dockerfile
 ├── vercel.json               # Vercel: rootDirectory = frontend
 └── docker-compose.yml        # api :8000 + web :3000
 ```

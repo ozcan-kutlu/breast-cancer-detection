@@ -27,7 +27,7 @@ export function FeatureForm({
       onSubmit={onSubmit}
     >
       {featureNames.map((name, i) => (
-        <div key={name} className="field">
+        <div key={name} className="field field-card">
           <label htmlFor={`f-${i}`}>{labelFeature(name)}</label>
           <input
             id={`f-${i}`}

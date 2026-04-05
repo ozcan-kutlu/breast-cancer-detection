@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { LangSwitch } from "@/components/common/LangSwitch";
+import { AppNavbar } from "@/components/layout/AppNavbar";
 import { FeatureForm } from "@/components/predict/FeatureForm";
 import { PredictionResultPanel } from "@/components/predict/PredictionResultPanel";
 import { fetchFeatureMeta, fetchSampleBenignMeans, postPredict } from "@/lib/api";
@@ -87,61 +87,69 @@ export default function PredictView() {
   };
 
   return (
-    <div className="page">
-      <nav className="nav-top">
-        <LangSwitch />
-      </nav>
+    <div className="app-shell">
+      <AppNavbar />
 
-      <header className="header">
-        <h1>{t("predict.h1")}</h1>
-        <p className="lead">{t("predict.lead")}</p>
-      </header>
+      <main className="main-content" id="main">
+        <header className="hero">
+          <p className="hero__eyebrow">{t("hero.eyebrow")}</p>
+          <h1 className="hero__title">{t("predict.h1")}</h1>
+          <p className="hero__lead">{t("predict.lead")}</p>
+        </header>
 
-      <section className="toolbar">
-        <button type="button" className="btn secondary" onClick={loadSample}>
-          {t("predict.btnSample")}
-        </button>
-        <button type="button" className="btn ghost" onClick={clearForm}>
-          {t("predict.btnClear")}
-        </button>
-      </section>
+        <section className="panel panel--form" aria-labelledby="form-heading">
+          <div className="panel__head">
+            <h2 className="panel__title" id="form-heading">
+              {t("panel.featuresTitle")}
+            </h2>
+            <div className="toolbar">
+              <button type="button" className="btn secondary" onClick={loadSample}>
+                {t("predict.btnSample")}
+              </button>
+              <button type="button" className="btn ghost" onClick={clearForm}>
+                {t("predict.btnClear")}
+              </button>
+            </div>
+          </div>
 
-      <FeatureForm
-        formId={FORM_ID}
-        featureNames={featureNames}
-        values={values}
-        labelFeature={tf}
-        formAriaLabel={t("predict.formAria")}
-        onSubmit={onSubmit}
-        onChangeValue={setVal}
-      />
+          <FeatureForm
+            formId={FORM_ID}
+            featureNames={featureNames}
+            values={values}
+            labelFeature={tf}
+            formAriaLabel={t("predict.formAria")}
+            onSubmit={onSubmit}
+            onChangeValue={setVal}
+          />
 
-      <section className="actions">
-        <button type="submit" className="btn primary" form={FORM_ID}>
-          {t("predict.btnSubmit")}
-        </button>
-      </section>
-
-      {error && (
-        <section className="result" aria-live="polite">
-          <p className="error">{error}</p>
+          <div className="actions">
+            <button type="submit" className="btn btn-submit" form={FORM_ID}>
+              {t("predict.btnSubmit")}
+            </button>
+          </div>
         </section>
-      )}
 
-      {result && !error && (
-        <PredictionResultPanel
-          title={t("predict.resultTitle")}
-          labelMalignant={t("predict.labelMalignant")}
-          labelBenign={t("predict.labelBenign")}
-          barMalignant={t("predict.barMalignant")}
-          barBenign={t("predict.barBenign")}
-          result={result}
-        />
-      )}
+        {error && (
+          <section className="alert alert--error" aria-live="polite">
+            <p className="alert__text">{error}</p>
+          </section>
+        )}
 
-      <footer className="footer">
-        <p>{t("predict.footer")}</p>
-      </footer>
+        {result && !error && (
+          <PredictionResultPanel
+            title={t("predict.resultTitle")}
+            labelMalignant={t("predict.labelMalignant")}
+            labelBenign={t("predict.labelBenign")}
+            barMalignant={t("predict.barMalignant")}
+            barBenign={t("predict.barBenign")}
+            result={result}
+          />
+        )}
+
+        <footer className="site-footer">
+          <p>{t("predict.footer")}</p>
+        </footer>
+      </main>
     </div>
   );
 }

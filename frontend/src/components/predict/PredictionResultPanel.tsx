@@ -26,28 +26,28 @@ export function PredictionResultPanel({
   const isMal = result.label === "malignant";
 
   return (
-    <section className="result" aria-live="polite">
-      <h2>{title}</h2>
-      <div className={`badge ${isMal ? "malignant" : "benign"}`}>
+    <section className="result-card" aria-live="polite">
+      <h2 className="result-card__title">{title}</h2>
+      <div className={`result-card__badge ${isMal ? "malignant" : "benign"}`}>
         {isMal ? labelMalignant : labelBenign}
       </div>
-      <div className="bars">
+      <div className="result-card__bars">
         <div className="bar-row">
-          <span>{barMalignant}</span>
+          <span className="bar-row__label">{barMalignant}</span>
           <div className="bar-bg">
             <div
               className="bar-fill malignant"
               style={{ width: `${malPct}%` }}
             />
           </div>
-          <span>{malPct}%</span>
+          <span className="bar-row__pct">{malPct}%</span>
         </div>
         <div className="bar-row">
-          <span>{barBenign}</span>
+          <span className="bar-row__label">{barBenign}</span>
           <div className="bar-bg">
             <div className="bar-fill benign" style={{ width: `${benPct}%` }} />
           </div>
-          <span>{benPct}%</span>
+          <span className="bar-row__pct">{benPct}%</span>
         </div>
       </div>
     </section>

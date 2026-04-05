@@ -38,6 +38,16 @@ export const FEATURE_LABELS_TR: Record<string, string> = {
 const DICT: Record<Lang, Record<string, string>> = {
   tr: {
     "lang.groupAria": "Dil seçimi",
+    "nav.brand": "BC Demo",
+    "nav.tagline": "Random Forest · Wisconsin veri seti",
+    "nav.currentPage": "Tahmin",
+    "nav.currentHint": "Şu an tahmin sayfasındasınız",
+    "nav.ariaMain": "Üst menü",
+    "theme.ariaToggle": "Açık veya koyu tema",
+    "theme.toLight": "Açık temaya geç",
+    "theme.toDark": "Koyu temaya geç",
+    "hero.eyebrow": "Makine öğrenmesi demosu",
+    "panel.featuresTitle": "Özellik değerleri",
     "title.predict": "Meme kanseri tespiti — Demo",
     "predict.h1": "Meme kanseri tespiti (demo)",
     "predict.lead":
@@ -62,6 +72,16 @@ const DICT: Record<Lang, Record<string, string>> = {
   },
   en: {
     "lang.groupAria": "Language",
+    "nav.brand": "BC Demo",
+    "nav.tagline": "Random Forest · Wisconsin dataset",
+    "nav.currentPage": "Predict",
+    "nav.currentHint": "You are on the prediction page",
+    "nav.ariaMain": "Main navigation",
+    "theme.ariaToggle": "Light or dark theme",
+    "theme.toLight": "Switch to light theme",
+    "theme.toDark": "Switch to dark theme",
+    "hero.eyebrow": "Machine learning demo",
+    "panel.featuresTitle": "Feature values",
     "title.predict": "Breast cancer detection — Demo",
     "predict.h1": "Breast cancer detection (demo)",
     "predict.lead":

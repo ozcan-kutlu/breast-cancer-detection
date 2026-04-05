@@ -11,6 +11,7 @@ __pycache__/
 # Ortam / gizli
 .env
 .env.*
+!frontend/.env.local.example
 
 # Eğitim çıktıları (Docker/train ile yeniden üretilir)
 artifacts/

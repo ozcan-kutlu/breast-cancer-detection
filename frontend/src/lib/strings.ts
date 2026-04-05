@@ -68,7 +68,7 @@ const DICT: Record<Lang, Record<string, string>> = {
     "predict.errSample": "Örnek veri alınamadı.",
     "predict.errRequest": "İstek hatası",
     "predict.errStartup":
-      "Sunucuya bağlanılamadı veya model yok. Önce python train.py ve uvicorn çalıştırın.",
+      "Sunucuya bağlanılamadı veya model yok. backend/ içinde python train.py ve uvicorn çalıştırın.",
   },
   en: {
     "lang.groupAria": "Language",
@@ -102,7 +102,7 @@ const DICT: Record<Lang, Record<string, string>> = {
     "predict.errSample": "Could not load sample data.",
     "predict.errRequest": "Request error",
     "predict.errStartup":
-      "Cannot reach server or model is missing. Run python train.py and the API server first.",
+      "Cannot reach server or model is missing. In backend/, run python train.py then start the API server.",
   },
 };
 

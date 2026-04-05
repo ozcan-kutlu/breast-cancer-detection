@@ -23,7 +23,7 @@ class MLResources:
 def _load_classifier_and_names() -> tuple[Any, list[str]]:
     if not MODEL_PATH.is_file() or not FEATURE_NAMES_PATH.is_file():
         raise FileNotFoundError(
-            "Model bulunamadı. Proje kökünde çalıştırın: python train.py"
+            "Model bulunamadı. backend/ içinde çalıştırın: python train.py"
         )
     clf = joblib.load(MODEL_PATH)
     names: list[str] = joblib.load(FEATURE_NAMES_PATH)

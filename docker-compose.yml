@@ -2,7 +2,7 @@
 services:
   api:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     image: breast-cancer-api:latest
     ports:

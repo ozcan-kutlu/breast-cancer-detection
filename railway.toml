@@ -2,4 +2,4 @@
 # Deploy sonrası Settings → Networking → Public URL ile API adresini alın.
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "backend/Dockerfile"

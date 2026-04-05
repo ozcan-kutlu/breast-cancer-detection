@@ -91,14 +91,16 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 ### A) API’yi yayınla (Render — önerilen)
 
 1. [Render](https://render.com/) → **New** → **Blueprint** → bu GitHub reposunu seç.
-2. `render.yaml` kökteki **Dockerfile** ile tek bir **Web Service** oluşturur (Frankfurt, free plan).
+2. `render.yaml` **`backend/Dockerfile`** ile tek bir **Web Service** oluşturur (Frankfurt, free plan).
 3. İlk build 3–5 dk sürebilir (`pip` + `train.py` imaj içinde çalışır).
 4. Deploy bitince public URL ör. `https://breast-cancer-api-xxxx.onrender.com` — kopyala.
 5. **Health check:** `GET /api/health` (Blueprint’te tanımlı).
 
 > Free Web Service uyku moduna geçebilir; ilk istekte birkaç saniye gecikme normaldir.
 
-**Railway alternatifi:** Repoyu bağla; kökteki `railway.toml` Dockerfile build kullanır. **Settings → Networking → Generate Domain** ile public URL al.
+> **Yapı değişikliği:** API dosyaları `backend/` altındadır. Eski bir Render servisiniz varsa Blueprint’i güncel `render.yaml` ile senkronlayın veya yeni commit’ten sonra **Manual Deploy** ile yeniden derleyin.
+
+**Railway alternatifi:** Repoyu bağla; `railway.toml` **`backend/Dockerfile`** ile build alır. **Settings → Networking → Generate Domain** ile public URL al.
 
 ### B) Vercel (Next.js)
 
@@ -130,7 +132,11 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 
 ### 1. Backend (API)
 
+Tüm komutlar **`backend/`** klasöründen çalıştırılmalıdır.
+
 ```bash
+cd backend
+
 # Sanal ortam (önerilir)
 python -m venv .venv
 
@@ -138,7 +144,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
 pip install -r requirements.txt
-python train.py          # artifacts/ altına model.joblib ve feature_names üretir
+python train.py          # backend/artifacts/ altına model.joblib ve feature_names üretir
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
@@ -194,22 +200,23 @@ Tüm yollar `/api` ön eki ile başlar.
 
 ```
 breast-cancer-detection/
-├── app/                      # FastAPI (routers, servisler, şemalar)
-├── frontend/
+├── backend/                  # Python API + model
+│   ├── app/                  # FastAPI (routers, servisler, şemalar)
+│   ├── train.py              # Model eğitimi → artifacts/
+│   ├── requirements.txt
+│   ├── Dockerfile            # API imajı (Render / Railway / Compose)
+│   └── artifacts/            # model.joblib, … (Git’e alınmaz; yerelde veya imajda üretilir)
+├── frontend/                 # Next.js
 │   └── src/
 │       ├── app/              # App Router, global stiller
 │       ├── components/       # Navbar, tahmin bileşenleri, tema / dil
 │       ├── contexts/         # Dil ve tema (React Context)
 │       └── lib/              # API istemcisi, i18n, tema yardımcıları
 ├── static/                   # İsteğe bağlı basit HTML/JS demo
-├── train.py                  # Model eğitimi → artifacts/
-├── artifacts/                # model.joblib, feature_names.joblib (Git’e alınmaz)
-├── Dockerfile                # API imajı (bulut + Docker Compose)
-├── render.yaml               # Render Blueprint (API tek tık)
-├── railway.toml              # Railway Dockerfile build
+├── render.yaml               # Render Blueprint → backend/Dockerfile
+├── railway.toml              # Railway → backend/Dockerfile
 ├── vercel.json               # Vercel: rootDirectory = frontend
-├── docker-compose.yml        # api :8000 + web :3000
-└── requirements.txt
+└── docker-compose.yml        # api :8000 + web :3000
 ```
 
 ---
@@ -230,7 +237,7 @@ breast-cancer-detection/
 ## Sık sorulanlar
 
 **`artifacts` klasörü boş / API başlamıyor**  
-Yerelde bir kez `python train.py` çalıştırın. Docker kullanıyorsanız API imajı build sırasında bunu zaten yapar.
+`backend/` içinde bir kez `python train.py` çalıştırın. Docker kullanıyorsanız API imajı build sırasında bunu zaten yapar.
 
 **Frontend API’ye bağlanamıyor**  
 **Yerel:** `NEXT_PUBLIC_API_URL=http://127.0.0.1:8000` ve uvicorn açık mı?  

@@ -6,11 +6,11 @@
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5-F7931E?logo=scikitlearn&logoColor=white)](https://scikit-learn.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
-[Özellikler](#-bu-proje-ne-yapar) · [Hızlı başlangıç](#-hızlı-başlangıç-docker) · [Yerel geliştirme](#-yerel-geliştirme) · [API](#-api-özeti) · [Proje yapısı](#-proje-yapısı)
+[Özellikler](#overview) · [Arayüz](#ui) · [Docker](#docker) · [Yerel geliştirme](#local-dev) · [API](#api) · [SSS](#faq)
 
 </div>
 
@@ -20,13 +20,15 @@
 
 ---
 
+<a id="overview"></a>
+
 ## Bu proje ne yapar?
 
 | Bileşen | Açıklama |
 |--------|----------|
 | **Model** | `sklearn` içindeki meme kanseri veri seti ile **Random Forest** sınıflandırıcısı eğitilir; tahmin **iyi huylu (benign)** veya **kötü huylu (malignant)** etiketidir. |
 | **API** | Özellik vektörü alır, olasılık ve sınıf döner; veri özeti ve örnek değer uçları sunar. |
-| **Arayüz** | Next.js ile tahmin formu ve sonuç paneli (Türkçe / İngilizce dil seçeneği). |
+| **Arayüz** | Tahmin formu, sonuç paneli, **Türkçe / İngilizce** dil seçimi ve **açık / koyu tema** (tercihler tarayıcıda saklanır). |
 
 ```mermaid
 flowchart LR
@@ -43,6 +45,19 @@ flowchart LR
 
 ---
 
+<a id="ui"></a>
+
+## Arayüz
+
+- **Navbar:** Marka alanı, aktif sayfa etiketi, tema ve dil kontrolleri.
+- **Tipografi:** [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) (`next/font`).
+- **Tema:** `localStorage` anahtarı `bc_theme` (`light` / `dark`); kayıt yoksa işletim sistemi `prefers-color-scheme` kullanılır. İlk boyamada yanlış tema flaşı olmaması için `beforeInteractive` script ile `data-theme` ayarlanır.
+- **Dil:** `localStorage` anahtarı `bc_lang` (`tr` / `en`).
+
+---
+
+<a id="docker"></a>
+
 ## Hızlı başlangıç (Docker)
 
 Tek komutla API ve web arayüzünü ayağa kaldırır.
@@ -53,15 +68,19 @@ Tek komutla API ve web arayüzünü ayağa kaldırır.
 docker compose up --build
 ```
 
+Arka planda çalıştırmak için: `docker compose up -d --build`
+
 | Adres | Ne var? |
 |-------|---------|
 | [http://localhost:3000](http://localhost:3000) | Next.js arayüzü |
 | [http://localhost:8000/docs](http://localhost:8000/docs) | API interaktif dokümantasyonu (Swagger) |
 | [http://localhost:8000/api/health](http://localhost:8000/api/health) | Sağlık kontrolü |
 
-> Docker imajı oluşturulurken `train.py` çalışır; model artifact’ları **konteyner içinde** üretilir. İlk build birkaç dakika sürebilir.
+> **Web imajı:** `npm run build` önce **ESLint** çalıştırır, ardından production build üretir. API imajında build sırasında `train.py` ile model artifact’ları oluşturulur. İlk build birkaç dakika sürebilir.
 
 ---
+
+<a id="local-dev"></a>
 
 ## Yerel geliştirme
 
@@ -83,14 +102,14 @@ API: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ### 2. Frontend (Next.js)
 
-Ayrı bir terminalde:
+Yalnızca `frontend/` klasöründe `package.json` bulunur (kökte ayrı Node projesi yok).
 
 ```bash
 cd frontend
 npm install
 ```
 
-Geliştirme sunucusu için API adresini iletin:
+Geliştirme sunucusu (API adresini tarayıcıdan erişilebilir verin):
 
 ```bash
 # Windows PowerShell
@@ -102,9 +121,17 @@ $env:NEXT_PUBLIC_API_URL="http://localhost:8000"; npm run dev
 NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev
 ```
 
+| Komut | Açıklama |
+|-------|----------|
+| `npm run dev` | Geliştirme sunucusu (Turbopack) |
+| `npm run lint` | [ESLint](https://eslint.org/) 9, `@next/eslint-plugin-next` (flat **core-web-vitals**) + TypeScript |
+| `npm run build` | Önce `lint`, sonra `next build` (standalone çıktı Docker’da kullanılır) |
+
 Arayüz: [http://localhost:3000](http://localhost:3000)
 
 ---
+
+<a id="api"></a>
 
 ## API özeti
 
@@ -123,13 +150,18 @@ Tüm yollar `/api` ön eki ile başlar.
 
 ```
 breast-cancer-detection/
-├── app/                 # FastAPI uygulaması (routers, servisler, şemalar)
-├── frontend/            # Next.js 15 (App Router, TypeScript)
-├── static/              # Basit statik HTML/JS örnekleri (isteğe bağlı)
-├── train.py             # Model eğitimi ve artifact üretimi
-├── artifacts/           # Üretilir: model.joblib, feature_names.joblib (Git’e alınmaz)
-├── Dockerfile           # API imajı (build sırasında train çalışır)
-├── docker-compose.yml   # api (8000) + web (3000)
+├── app/                      # FastAPI (routers, servisler, şemalar)
+├── frontend/
+│   └── src/
+│       ├── app/              # App Router, global stiller
+│       ├── components/       # Navbar, tahmin bileşenleri, tema / dil
+│       ├── contexts/         # Dil ve tema (React Context)
+│       └── lib/              # API istemcisi, i18n, tema yardımcıları
+├── static/                   # İsteğe bağlı basit HTML/JS demo
+├── train.py                  # Model eğitimi → artifacts/
+├── artifacts/                # model.joblib, feature_names.joblib (Git’e alınmaz)
+├── Dockerfile                # API imajı
+├── docker-compose.yml        # api :8000 + web :3000
 └── requirements.txt
 ```
 
@@ -141,18 +173,26 @@ breast-cancer-detection/
 |--------|-----------|
 | ML | scikit-learn (Random Forest), joblib, NumPy |
 | Backend | FastAPI, Uvicorn, Pydantic |
-| Frontend | Next.js 15, React 19, TypeScript |
-| DevOps | Docker, Docker Compose |
+| Frontend | Next.js 15.5, React 19, TypeScript, ESLint 9 (flat config) |
+| DevOps | Docker, Docker Compose (Node 20 + Python 3.11 imajları) |
 
 ---
+
+<a id="faq"></a>
 
 ## Sık sorulanlar
 
 **`artifacts` klasörü boş / API başlamıyor**  
-Yerelde bir kez `python train.py` çalıştırın. Docker kullanıyorsanız build sırasında zaten üretilir.
+Yerelde bir kez `python train.py` çalıştırın. Docker kullanıyorsanız API imajı build sırasında bunu zaten yapar.
 
 **Frontend API’ye bağlanamıyor**  
-`NEXT_PUBLIC_API_URL` değerinin tarayıcının erişebileceği tam URL olduğundan emin olun (ör. `http://localhost:8000`). Docker Compose’ta bu değer `docker-compose.yml` içinde build argümanı olarak verilir.
+`NEXT_PUBLIC_API_URL` değerinin tarayıcının erişebileceği tam URL olduğundan emin olun (ör. `http://localhost:8000`). Docker Compose’ta bu değer `docker-compose.yml` içinde web build argümanı olarak verilir.
+
+**Tema veya dil sıfırlandı**  
+Tercihler `localStorage` içindedir; site verisini temizlediyseniz veya gizli pencerede açtıysanız varsayılanlara döner (tema: sistem tercihi veya koyu; dil: Türkçe).
+
+**`npm run build` ESLint’te takılıyor**  
+Önce `npm run lint` ile hataları düzeltin. Next’in kendi build-içi lint adımı bu projede kapatılmıştır; kalite kontrolü `npm run build` öncesindeki `eslint .` ile yapılır.
 
 ---
 

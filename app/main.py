@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import dataset, health, insights, prediction
+from app.routers import dataset, health, prediction
 from app.state import load_ml_resources
 
 
@@ -36,7 +36,6 @@ def create_app() -> FastAPI:
     app.include_router(health.router, prefix=api_prefix)
     app.include_router(dataset.router, prefix=api_prefix)
     app.include_router(prediction.router, prefix=api_prefix)
-    app.include_router(insights.router, prefix=api_prefix)
 
     return app
 

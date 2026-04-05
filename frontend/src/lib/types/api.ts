@@ -17,12 +17,3 @@ export type PredictionApiResponse = {
   probability_malignant: number;
   probability_benign: number;
 };
-
-export type ModelInfoResponse = {
-  algorithm: string;
-  n_estimators: number;
-  max_depth: number | null;
-  n_features_in: number;
-  classes: string[];
-  feature_importance: { name: string; importance: number }[];
-};

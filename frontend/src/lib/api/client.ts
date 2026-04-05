@@ -1,6 +1,5 @@
 import type {
   FeatureMetaResponse,
-  ModelInfoResponse,
   PredictionApiResponse,
   SampleBenignResponse,
 } from "@/lib/types/api";
@@ -42,20 +41,4 @@ export async function postPredict(
     throw new Error(detail);
   }
   return data as PredictionApiResponse;
-}
-
-export async function fetchModelInfo(): Promise<ModelInfoResponse> {
-  const base = getApiBase();
-  const r = await fetch(`${base}/api/model/info`);
-  const data = await r.json();
-  if (!r.ok) {
-    const detail =
-      typeof data.detail === "string" ? data.detail : r.statusText;
-    throw new Error(detail);
-  }
-  return data as ModelInfoResponse;
-}
-
-export function treePngUrl(): string {
-  return `${getApiBase()}/api/model/tree.png`;
 }

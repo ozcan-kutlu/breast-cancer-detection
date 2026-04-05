@@ -25,8 +25,8 @@
 | Bileşen | Açıklama |
 |--------|----------|
 | **Model** | `sklearn` içindeki meme kanseri veri seti ile **Random Forest** sınıflandırıcısı eğitilir; tahmin **iyi huylu (benign)** veya **kötü huylu (malignant)** etiketidir. |
-| **API** | Özellik vektörü alır, olasılık ve sınıf döner; veri özeti, model bilgisi ve karar ağacı görseli sunar. |
-| **Arayüz** | Next.js ile tahmin formu, sonuç paneli ve model sayfası (Türkçe / İngilizce dil seçeneği). |
+| **API** | Özellik vektörü alır, olasılık ve sınıf döner; veri özeti ve örnek değer uçları sunar. |
+| **Arayüz** | Next.js ile tahmin formu ve sonuç paneli (Türkçe / İngilizce dil seçeneği). |
 
 ```mermaid
 flowchart LR
@@ -59,7 +59,7 @@ docker compose up --build
 | [http://localhost:8000/docs](http://localhost:8000/docs) | API interaktif dokümantasyonu (Swagger) |
 | [http://localhost:8000/api/health](http://localhost:8000/api/health) | Sağlık kontrolü |
 
-> Docker imajı oluşturulurken `train.py` çalışır; model ve görseller **konteyner içinde** üretilir. İlk build birkaç dakika sürebilir.
+> Docker imajı oluşturulurken `train.py` çalışır; model artifact’ları **konteyner içinde** üretilir. İlk build birkaç dakika sürebilir.
 
 ---
 
@@ -75,7 +75,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
 pip install -r requirements.txt
-python train.py          # artifacts/ altına model ve tree_first.png üretir
+python train.py          # artifacts/ altına model.joblib ve feature_names üretir
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
@@ -116,8 +116,6 @@ Tüm yollar `/api` ön eki ile başlar.
 | `GET` | `/api/meta` | Özellik isimleri ve veri seti meta bilgisi |
 | `GET` | `/api/sample-benign-means` | Örnek iyi huylu ortalama değerler |
 | `POST` | `/api/predict` | Özelliklerle tahmin |
-| `GET` | `/api/model/info` | Model / eğitim özeti |
-| `GET` | `/api/model/tree.png` | İlk ağacın PNG görseli |
 
 ---
 
@@ -129,7 +127,7 @@ breast-cancer-detection/
 ├── frontend/            # Next.js 15 (App Router, TypeScript)
 ├── static/              # Basit statik HTML/JS örnekleri (isteğe bağlı)
 ├── train.py             # Model eğitimi ve artifact üretimi
-├── artifacts/           # Üretilir: model.joblib, feature_names.joblib, tree_first.png (Git’e alınmaz)
+├── artifacts/           # Üretilir: model.joblib, feature_names.joblib (Git’e alınmaz)
 ├── Dockerfile           # API imajı (build sırasında train çalışır)
 ├── docker-compose.yml   # api (8000) + web (3000)
 └── requirements.txt

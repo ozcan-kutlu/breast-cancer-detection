@@ -1,37 +1,23 @@
 """
 Wisconsin Breast Cancer veri seti ile Random Forest eğitir;
-artifacts/ altına model, özellik isimleri ve örnek ağaç PNG kaydeder.
+artifacts/ altına model ve özellik isimlerini kaydeder.
 """
 
 from __future__ import annotations
 
 import joblib
-import matplotlib
-
-matplotlib.use("Agg")
-
-import matplotlib.pyplot as plt
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
-from sklearn.tree import plot_tree
 
-from app.config import (
-    ARTIFACTS_DIR,
-    FEATURE_NAMES_PATH,
-    MODEL_PATH,
-    TREE_IMAGE_PATH,
-)
+from app.config import ARTIFACTS_DIR, FEATURE_NAMES_PATH, MODEL_PATH
 
 # Eğitim hiperparametreleri
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 RF_N_ESTIMATORS = 200
 RF_MAX_DEPTH = 12
-TREE_PLOT_MAX_DEPTH = 3
-TREE_FIGSIZE = (22, 12)
-TREE_DPI = 120
 
 
 def train_classifier(x_train, y_train) -> RandomForestClassifier:
@@ -45,35 +31,12 @@ def train_classifier(x_train, y_train) -> RandomForestClassifier:
     return clf
 
 
-def save_first_tree_figure(
-    clf: RandomForestClassifier,
-    feature_names: list[str],
-    class_names: list[str],
-    path,
-) -> None:
-    fig, ax = plt.subplots(figsize=TREE_FIGSIZE, dpi=TREE_DPI)
-    plot_tree(
-        clf.estimators_[0],
-        feature_names=feature_names,
-        class_names=class_names,
-        filled=True,
-        rounded=True,
-        max_depth=TREE_PLOT_MAX_DEPTH,
-        ax=ax,
-        fontsize=7,
-    )
-    fig.tight_layout()
-    fig.savefig(path, bbox_inches="tight")
-    plt.close(fig)
-
-
 def main() -> None:
     ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
 
     data = load_breast_cancer()
     x, y = data.data, data.target
     feature_names = list(data.feature_names)
-    class_names = list(data.target_names)
 
     x_train, x_test, y_train, y_test = train_test_split(
         x,
@@ -92,9 +55,6 @@ def main() -> None:
 
     joblib.dump(clf, MODEL_PATH)
     joblib.dump(feature_names, FEATURE_NAMES_PATH)
-
-    save_first_tree_figure(clf, feature_names, class_names, TREE_IMAGE_PATH)
-    print(f"Örnek ağaç görseli: {TREE_IMAGE_PATH}")
     print(f"Model kaydedildi: {MODEL_PATH}")
 
 

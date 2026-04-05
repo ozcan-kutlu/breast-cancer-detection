@@ -1,10 +1,9 @@
-# Wisconsin BC demo: eğitim görüntüleri (matplotlib) imaj içinde üretilir.
+# Wisconsin BC demo: train.py imaj build sırasında model artifact üretir.
 FROM python:3.11-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
-    MPLBACKEND=Agg
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 

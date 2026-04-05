@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { LangSwitch } from "@/components/common/LangSwitch";
 import { FeatureForm } from "@/components/predict/FeatureForm";
@@ -90,7 +89,6 @@ export default function PredictView() {
   return (
     <div className="page">
       <nav className="nav-top">
-        <Link href="/model">{t("nav.modelLink")}</Link>
         <LangSwitch />
       </nav>
 

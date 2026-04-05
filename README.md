@@ -108,7 +108,7 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 3. Eski denemelerden kalan **`NEXT_PUBLIC_API_URL`** varsa **silin** veya boş bırakın — proxy aktifken gerekmez; karışıklığı önler.
 4. Git’e **yeni commit push** edin (Vercel otomatik deploy) veya boş commit: `git commit --allow-empty -m "redeploy" && git push`.
 
-**Nasıl çalışıyor?** `next.config.ts` içinde `BACKEND_URL` tanımlıysa `/api-upstream/...` istekleri Vercel sunucusunda Render’daki `/api/...` adresine yönlendirilir; tarayıcı sadece kendi Vercel alan adını görür.
+**Nasıl çalışıyor?** `BACKEND_URL` Vercel’de tanımlıysa tarayıcı `/api/render/...` adresine istek atar; Next.js Route Handler bunu sunucuda Render’daki `/api/...` adresine iletir; tarayıcı sadece kendi Vercel alan adını görür.
 
 ### C) Kontrol
 
@@ -233,7 +233,7 @@ Yerelde bir kez `python train.py` çalıştırın. Docker kullanıyorsanız API 
 
 **Frontend API’ye bağlanamıyor**  
 **Yerel / Docker:** `NEXT_PUBLIC_API_URL` veya varsayılan `http://127.0.0.1:8000`. Compose’ta `docker-compose.yml` build argümanına bakın.  
-**Vercel:** `BACKEND_URL` = Render (veya Railway) API kök adresi; build sırasında da erişilebilir olmalı. İstekler `/api-upstream` üzerinden proxy’lenir.
+**Vercel:** `BACKEND_URL` = Render (veya Railway) API kök adresi (Production’da Runtime için yeterli). İstekler `/api/render/...` Route Handler ile proxy’lenir.
 
 **Tema veya dil sıfırlandı**  
 Tercihler `localStorage` içindedir; site verisini temizlediyseniz veya gizli pencerede açtıysanız varsayılanlara döner (tema: sistem tercihi veya koyu; dil: Türkçe).

@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 const isVercel = Boolean(process.env.VERCEL);
 
 const backendUrl = process.env.BACKEND_URL?.trim().replace(/\/$/, "") ?? "";
-// Vercel production/preview: istemci /api-upstream kullanır; hedef URL runtime’da Route Handler okur
+// Vercel production/preview: istemci /api/render/... kullanır; hedef URL runtime’da Route Handler okur
 // (build anında BACKEND_URL yoksa bile çalışır). vercel dev → VERCEL_ENV=development → doğrudan API.
 const onVercelDeploy =
   process.env.VERCEL === "1" && process.env.VERCEL_ENV !== "development";

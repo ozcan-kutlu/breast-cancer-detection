@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 function backendBase(): string | null {
   const u = process.env.BACKEND_URL?.trim().replace(/\/$/, "");
   return u || null;
@@ -31,7 +34,7 @@ function sanitizeResponseHeaders(h: Headers): Headers {
   return out;
 }
 
-async function proxy(req: NextRequest, segments: string[] | undefined) {
+async function proxy(req: NextRequest, segments: string[]) {
   const base = backendBase();
   if (!base) {
     return NextResponse.json(
@@ -40,7 +43,7 @@ async function proxy(req: NextRequest, segments: string[] | undefined) {
     );
   }
 
-  const suffix = segments?.length ? segments.join("/") : "";
+  const suffix = segments.length ? segments.join("/") : "";
   const apiPath = suffix ? `/api/${suffix}` : "/api";
   const target = new URL(apiPath + req.nextUrl.search, `${base}/`);
 
@@ -64,7 +67,7 @@ async function proxy(req: NextRequest, segments: string[] | undefined) {
 
 export async function GET(
   req: NextRequest,
-  ctx: { params: Promise<{ path?: string[] }> },
+  ctx: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await ctx.params;
   return proxy(req, path);
@@ -72,7 +75,7 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  ctx: { params: Promise<{ path?: string[] }> },
+  ctx: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await ctx.params;
   return proxy(req, path);

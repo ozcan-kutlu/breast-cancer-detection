@@ -1,7 +1,7 @@
 /**
  * API istek adresi.
  * - Yerel: doğrudan FastAPI (NEXT_PUBLIC_API_URL veya 127.0.0.1:8000).
- * - Canlı (vercel.app vb.): /api-upstream/... → sunucu Route Handler → Render (BACKEND_URL).
+ * - Canlı (vercel.app vb.): /api/render/... → Route Handler → Render (BACKEND_URL).
  */
 
 function stripTrailingSlash(s: string): string {
@@ -25,7 +25,7 @@ function useUpstream(): boolean {
 
 function toUpstreamPath(apiPath: string): string {
   const sub = apiPath.replace(/^\/api\/?/, "");
-  return `/api-upstream/${sub}`;
+  return `/api/render/${sub}`;
 }
 
 /**

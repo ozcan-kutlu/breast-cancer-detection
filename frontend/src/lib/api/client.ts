@@ -3,22 +3,20 @@ import type {
   PredictionApiResponse,
   SampleBenignResponse,
 } from "@/lib/types/api";
-import { getApiBase } from "@/lib/api/url";
+import { resolveApiUrl } from "@/lib/api/url";
 
 async function parseJsonOrThrow<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
 export async function fetchFeatureMeta(): Promise<FeatureMetaResponse> {
-  const base = getApiBase();
-  const r = await fetch(`${base}/api/meta`);
+  const r = await fetch(resolveApiUrl("/api/meta"));
   if (!r.ok) throw new Error(`meta ${r.status}`);
   return parseJsonOrThrow(r);
 }
 
 export async function fetchSampleBenignMeans(): Promise<SampleBenignResponse> {
-  const base = getApiBase();
-  const r = await fetch(`${base}/api/sample-benign-means`);
+  const r = await fetch(resolveApiUrl("/api/sample-benign-means"));
   if (!r.ok) throw new Error(`sample ${r.status}`);
   return parseJsonOrThrow(r);
 }
@@ -26,8 +24,7 @@ export async function fetchSampleBenignMeans(): Promise<SampleBenignResponse> {
 export async function postPredict(
   features: number[],
 ): Promise<PredictionApiResponse> {
-  const base = getApiBase();
-  const r = await fetch(`${base}/api/predict`, {
+  const r = await fetch(resolveApiUrl("/api/predict"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ features }),

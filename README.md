@@ -84,7 +84,7 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 
 ## Dağıtım (Vercel + API)
 
-Tarayıcı doğrudan **FastAPI**’ye istek atar; Vercel’de yalnızca Next.js vardır. Önce **API’yi internete**, sonra **Vercel ortam değişkeni** ile bağlayın.
+Önce **API’yi internete** açın; Vercel’de frontend, istekleri **sunucu tarafı proxy** ile Render’a iletir (CORS / `NEXT_PUBLIC_` gömme sorunlarını önler).
 
 ### A) API’yi yayınla (Render — önerilen)
 
@@ -100,22 +100,26 @@ Tarayıcı doğrudan **FastAPI**’ye istek atar; Vercel’de yalnızca Next.js 
 
 ### B) Vercel (Next.js)
 
-1. [Vercel](https://vercel.com/) → **Add New… → Project** → aynı repoyu içe aktar.
-2. **Root Directory:** `frontend` (kökteki `vercel.json` bunu ayarlar; panelde farklıysa `frontend` yapın).
-3. **Environment Variables → Production:**  
-   - `NEXT_PUBLIC_API_URL` = **A adımındaki API URL’si** (sonunda `/` olmasın), ör. `https://breast-cancer-api-xxxx.onrender.com`
-4. **Deploy.** Değişkeni sonradan eklerseniz **Redeploy** gerekir (değer build’e gömülür).
+1. [Vercel](https://vercel.com/) → proje → **Settings → Environment Variables**.
+2. **Production** (ve gerekirse Preview) için şunu ekleyin:  
+   - **`BACKEND_URL`** = Render API adresiniz, ör. `https://breast-cancer-api-xxxx.onrender.com`  
+   - Sonunda **`/`** olmasın.  
+   - **Build** sırasında da kullanılması lazım (Vercel’de değişken eklerken *Production* + *Preview* için “Available at Build Time” seçenekleri açık olsun).
+3. Eski denemelerden kalan **`NEXT_PUBLIC_API_URL`** varsa **silin** veya boş bırakın — proxy aktifken gerekmez; karışıklığı önler.
+4. Git’e **yeni commit push** edin (Vercel otomatik deploy) veya boş commit: `git commit --allow-empty -m "redeploy" && git push`.
+
+**Nasıl çalışıyor?** `next.config.ts` içinde `BACKEND_URL` tanımlıysa `/api-upstream/...` istekleri Vercel sunucusunda Render’daki `/api/...` adresine yönlendirilir; tarayıcı sadece kendi Vercel alan adını görür.
 
 ### C) Kontrol
 
-- Tarayıcıda: `https://SENİN-API-ADRESİN/api/health` → `{"status":"ok",...}` görmelisiniz.
-- Sonra Vercel URL’nizde form yüklenmeli ve tahmin çalışmalı.
+- Tarayıcıda: `https://SENİN-RENDER-URL/api/health` → `{"status":"ok",...}`
+- Sonra Vercel sitesinde form ve tahmin.
 
 **Teknik notlar**
 
-- `frontend/src/lib/api/url.ts`: `NEXT_PUBLIC_API_URL` yoksa varsayılan `http://127.0.0.1:8000` — üretimde mutlaka env verin.
-- `Dockerfile`: Render/Railway `PORT` verir; uvicorn `PORT` (yoksa 8000) ile dinler.
-- `next.config.ts`: `VERCEL=1` iken `standalone` kapatılır (Vercel uyumu).
+- **Yerel / Docker:** `BACKEND_URL` yok → istekler doğrudan `NEXT_PUBLIC_API_URL` veya `http://127.0.0.1:8000`.
+- **`Dockerfile`:** Render/Railway `PORT`; uvicorn `${PORT:-8000}`.
+- **`next.config.ts`:** `VERCEL=1` iken `standalone` kapalı; `BACKEND_URL` varken `NEXT_PUBLIC_API_PROXY=1` client’a build sırasında yazılır.
 
 ---
 
@@ -228,7 +232,8 @@ breast-cancer-detection/
 Yerelde bir kez `python train.py` çalıştırın. Docker kullanıyorsanız API imajı build sırasında bunu zaten yapar.
 
 **Frontend API’ye bağlanamıyor**  
-`NEXT_PUBLIC_API_URL` değerinin tarayıcının erişebileceği tam URL olduğundan emin olun (ör. `http://localhost:8000`). Docker Compose’ta bu değer `docker-compose.yml` içinde web build argümanı olarak verilir.
+**Yerel / Docker:** `NEXT_PUBLIC_API_URL` veya varsayılan `http://127.0.0.1:8000`. Compose’ta `docker-compose.yml` build argümanına bakın.  
+**Vercel:** `BACKEND_URL` = Render (veya Railway) API kök adresi; build sırasında da erişilebilir olmalı. İstekler `/api-upstream` üzerinden proxy’lenir.
 
 **Tema veya dil sıfırlandı**  
 Tercihler `localStorage` içindedir; site verisini temizlediyseniz veya gizli pencerede açtıysanız varsayılanlara döner (tema: sistem tercihi veya koyu; dil: Türkçe).
@@ -237,7 +242,7 @@ Tercihler `localStorage` içindedir; site verisini temizlediyseniz veya gizli pe
 Önce `npm run lint` ile hataları düzeltin. Next’in kendi build-içi lint adımı bu projede kapatılmıştır; kalite kontrolü `npm run build` öncesindeki `eslint .` ile yapılır.
 
 **Vercel’de site açılıyor ama veri / tahmin yüklenmiyor**  
-`NEXT_PUBLIC_API_URL` tanımlı mı ve gerçekten **yayında bir API**’ye mi işaret ediyor kontrol edin. Değişkeni ekledikten sonra **yeniden deploy** edin (build zamanında gömülür).
+**`BACKEND_URL`** (Render URL’si, sonunda `/` yok) tanımlı mı ve **build + production** için açık mı? Eski **`NEXT_PUBLIC_API_URL`** kaldırın. Değişiklikten sonra **yeni commit ile deploy** edin.
 
 ---
 

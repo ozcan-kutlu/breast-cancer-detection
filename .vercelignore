@@ -1,9 +1,0 @@
-# API Render’da; Vercel yalnızca Next.js. Bu dosyalar yüklemeyi şişirir ve
-# bazen FastAPI otomatik algılamasını tetikler.
-/app
-/train.py
-/requirements.txt
-/Dockerfile
-/docker-compose.yml
-/render.yaml
-/railway.toml

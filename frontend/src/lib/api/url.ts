@@ -22,7 +22,3 @@ export function resolveApiUrl(apiPath: string): string {
   const base = apiBase();
   return `${base}${apiPath.startsWith("/") ? apiPath : `/${apiPath}`}`;
 }
-
-export function getApiBase(): string {
-  return apiBase();
-}

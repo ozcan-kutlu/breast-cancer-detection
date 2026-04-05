@@ -104,8 +104,7 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 2. **Production** ve **Preview** için: **`NEXT_PUBLIC_API_URL`** = Render API kökünüz, ör. `https://breast-cancer-api-xxxx.onrender.com`  
    - Sonunda **`/`** olmasın.  
    - **`NEXT_PUBLIC_*`** build sırasında bundle’a gömülür → değişkenin **Build** ortamında da kullanılabilir olduğundan emin olun (Vercel’de ilgili kutular işaretli olsun).
-3. Eski **`BACKEND_URL`** tanımı kaldıysa silebilirsiniz (artık kullanılmıyor).
-4. Yeni deploy: push veya **Redeploy**.
+3. Yeni deploy: push veya **Redeploy**.
 
 **Nasıl çalışıyor?** Tarayıcı doğrudan Render’daki `NEXT_PUBLIC_API_URL` + `/api/...` adresine istek atar. FastAPI tarafında CORS `allow_origins=["*"]` ile açıktır.
 

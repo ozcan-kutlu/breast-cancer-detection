@@ -12,7 +12,7 @@ const onVercelDeploy =
 const nextConfig: NextConfig = {
   ...(!isVercel && { output: "standalone" as const }),
   env: {
-    NEXT_PUBLIC_API_PROXY: backendUrl || onVercelDeploy ? "1" : "0",
+    NEXT_PUBLIC_API_PROXY: (backendUrl || onVercelDeploy) ? "1" : "0",
   },
   // ESLint `npm run build` içinde ayrı çalışır; Next’in dahili lint adımı flat config’i tam algılamıyor.
   eslint: {

@@ -10,7 +10,7 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5-F7931E?logo=scikitlearn&logoColor=white)](https://scikit-learn.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
-[Özellikler](#overview) · [Arayüz](#ui) · [Docker](#docker) · [Yerel geliştirme](#local-dev) · [API](#api) · [SSS](#faq)
+[Özellikler](#overview) · [Arayüz](#ui) · [Docker](#docker) · [Vercel](#vercel) · [Yerel geliştirme](#local-dev) · [API](#api) · [SSS](#faq)
 
 </div>
 
@@ -80,6 +80,20 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 
 ---
 
+<a id="vercel"></a>
+
+## Vercel (yalnızca frontend)
+
+Bu repoda **API ayrı bir sunucudur**; Vercel’e yalnızca Next.js uygulaması bağlanırsa tarayıcı hâlâ bir **FastAPI** adresine ihtiyaç duyar.
+
+1. **Kök dizin:** Vercel proje ayarında **Root Directory** → `frontend`.
+2. **Ortam değişkeni (zorunlu):** `NEXT_PUBLIC_API_URL` = canlı API’nizin tam adresi, ör. `https://api-xxx.railway.app`  
+   - Tanımlanmazsa kod varsayılan olarak `http://127.0.0.1:8000` kullanır; ziyaretçinin bilgisayarında çalışmayan bir adrese istek gider → **meta / tahmin hataları**.
+3. **API’yi internete açın:** FastAPI’yi [Railway](https://railway.app/), [Render](https://render.com/), [Fly.io](https://fly.io/) vb. üzerinde yayınlayın; `train.py` veya artifact’ların orada da üretilmiş olması gerekir. CORS bu projede açıktır (`allow_origins=["*"]`).
+4. **Build:** `next.config.ts` içinde `VERCEL` ortamında `output: "standalone"` kullanılmaz (Vercel’in varsayılan Next dağıtımı ile uyum).
+
+---
+
 <a id="local-dev"></a>
 
 ## Yerel geliştirme
@@ -125,7 +139,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev
 |-------|----------|
 | `npm run dev` | Geliştirme sunucusu (Turbopack) |
 | `npm run lint` | [ESLint](https://eslint.org/) 9, `@next/eslint-plugin-next` (flat **core-web-vitals**) + TypeScript |
-| `npm run build` | Önce `lint`, sonra `next build` (standalone çıktı Docker’da kullanılır) |
+| `npm run build` | Önce `lint`, sonra `next build` (standalone yalnızca Docker; Vercel’de `VERCEL` ile kapatılır) |
 
 Arayüz: [http://localhost:3000](http://localhost:3000)
 
@@ -193,6 +207,9 @@ Tercihler `localStorage` içindedir; site verisini temizlediyseniz veya gizli pe
 
 **`npm run build` ESLint’te takılıyor**  
 Önce `npm run lint` ile hataları düzeltin. Next’in kendi build-içi lint adımı bu projede kapatılmıştır; kalite kontrolü `npm run build` öncesindeki `eslint .` ile yapılır.
+
+**Vercel’de site açılıyor ama veri / tahmin yüklenmiyor**  
+`NEXT_PUBLIC_API_URL` tanımlı mı ve gerçekten **yayında bir API**’ye mi işaret ediyor kontrol edin. Değişkeni ekledikten sonra **yeniden deploy** edin (build zamanında gömülür).
 
 ---
 

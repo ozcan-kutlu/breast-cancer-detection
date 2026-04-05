@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meme kanseri tespiti — Demo</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body data-app-page="predict">
+    <div class="page">
+      <nav class="nav-top">
+        <a href="/model" data-i18n="nav.modelLink">Modeli görüntüle →</a>
+        <div
+          class="lang-switch"
+          role="group"
+          data-i18n-aria="lang.groupAria"
+          aria-label="Dil seçimi"
+        >
+          <button type="button" class="lang-btn" data-lang-set="tr" aria-pressed="true">
+            TR
+          </button>
+          <button type="button" class="lang-btn" data-lang-set="en" aria-pressed="false">
+            EN
+          </button>
+        </div>
+      </nav>
+
+      <header class="header">
+        <h1 data-i18n="predict.h1">Meme kanseri tespiti (demo)</h1>
+        <p class="lead" data-i18n="predict.lead"></p>
+      </header>
+
+      <section class="toolbar">
+        <button type="button" id="btn-load-sample" class="btn secondary" data-i18n="predict.btnSample">
+        </button>
+        <button type="button" id="btn-clear" class="btn ghost" data-i18n="predict.btnClear"></button>
+      </section>
+
+      <form
+        id="predict-form"
+        class="form-grid"
+        data-i18n-aria="predict.formAria"
+        aria-label="Özellik girişi"
+      ></form>
+
+      <section class="actions">
+        <button type="submit" form="predict-form" class="btn primary" id="btn-submit" data-i18n="predict.btnSubmit">
+        </button>
+      </section>
+
+      <section id="result" class="result hidden" aria-live="polite"></section>
+
+      <footer class="footer">
+        <p data-i18n="predict.footer"></p>
+      </footer>
+    </div>
+    <script src="/assets/i18n.js"></script>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

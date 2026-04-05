@@ -1,0 +1,22 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: breast-cancer-api:latest
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    image: breast-cancer-web:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped

@@ -102,11 +102,12 @@ Arka planda çalıştırmak için: `docker compose up -d --build`
 
 ### B) Vercel (Next.js)
 
-1. [Vercel](https://vercel.com/) → proje → **Settings → Environment Variables**.
-2. **Production** ve **Preview** için: **`NEXT_PUBLIC_API_URL`** = Render API kökünüz, ör. `https://breast-cancer-api-xxxx.onrender.com`  
+1. [Vercel](https://vercel.com/) → repoyu içe aktarırken veya **Settings → General** altında **Root Directory** = **`frontend`** olmalı (`vercel.json` içinde yazılmaz; bazı akışlar ek özellik hatası verir).
+2. **Settings → Environment Variables**.
+3. **Production** ve **Preview** için: **`NEXT_PUBLIC_API_URL`** = Render API kökünüz, ör. `https://breast-cancer-api-xxxx.onrender.com`  
    - Sonunda **`/`** olmasın.  
    - **`NEXT_PUBLIC_*`** build sırasında bundle’a gömülür → değişkenin **Build** ortamında da kullanılabilir olduğundan emin olun (Vercel’de ilgili kutular işaretli olsun).
-3. Yeni deploy: push veya **Redeploy**.
+4. Yeni deploy: push veya **Redeploy**.
 
 **Nasıl çalışıyor?** Tarayıcı doğrudan Render’daki `NEXT_PUBLIC_API_URL` + `/api/...` adresine istek atar. FastAPI tarafında CORS `allow_origins=["*"]` ile açıktır.
 
@@ -211,7 +212,7 @@ breast-cancer-detection/
 │       ├── contexts/         # Dil ve tema (React Context)
 │       └── lib/              # API istemcisi, i18n, tema yardımcıları
 ├── render.yaml               # Render Blueprint → backend/Dockerfile
-├── vercel.json               # Vercel: rootDirectory = frontend
+├── vercel.json               # Vercel: framework nextjs (Root Directory panelden: frontend)
 └── docker-compose.yml        # api :8000 + web :3000
 ```
 
